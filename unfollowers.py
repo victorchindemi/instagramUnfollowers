@@ -1,34 +1,29 @@
-'''SETUP
+from instagrapi import Client
 
-pip3 install instaloader
+# Initialize the client
+cl = Client()
 
-set username and password variables to such
+# Login to your account
+USERNAME = 'your_username'
+PASSWORD = 'your_password'
+cl.login(USERNAME, PASSWORD)
 
-IF you have 2fa enabled, then do:
-instaloader --login=username
-'''
+# Get your user ID
+user_id = cl.user_id
 
-import instaloader
+# Fetch the list of followers
+followers = cl.user_followers(user_id)
+follower_usernames = set([user.username for user in followers.values()])
 
-# Loading instaloader object
-L = instaloader.Instaloader()
- 
-username = "username"
-password = "passwd"
+# Fetch the list of users you are following
+following = cl.user_following(user_id)
+following_usernames = set([user.username for user in following.values()])
 
-try:
-	# Loading session stored in the system
-	L.load_session_from_file(username)
-except:
-	# Login with username and password
-	L.login(username, password)
+# Identify users you follow who don't follow you back
+not_following_back = following_usernames - follower_usernames
 
-profile = instaloader.Profile.from_username(L.context, username)
-followers = [i.username for i in profile.get_followers()]
-followees = [i.username for i in profile.get_followees()]
+# Output the results
+print("Users who don't follow you back:")
+for username in not_following_back:
+    print(username)
 
-unfollowers = set(followees)-set(followers)
-
-print(unfollowers)
-
-print("Amount: ", len(unfollowers))
